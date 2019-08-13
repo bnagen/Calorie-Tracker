@@ -1,5 +1,70 @@
 // Storage
+const StorageController = (function(){
+    
+    
+    
+    //public methods
+    return {
+        storeItem: function(item) {
+            let items;
+            // check if items are in storage
+            if(localStorage.getItem('items') === null) {
+                items = [];
+                //push new item
+                items.push(item);
+                // put in local storage
+                localStorage.setItem('items', JSON.stringify(items));
+            } else {
+                items = JSON.parse(localStorage.getItem("items"));
 
+                // push
+                items.push(item);
+
+                // reset localstorage
+                localStorage.setItem('items', JSON.stringify(items));
+            }
+        },
+
+        getItemsFromLocalStorage: function() {
+            let items;
+            if(localStorage.getItem("items") === null) {
+                items = [];
+            } else {
+                items = JSON.parse(localStorage.getItem("items"));
+            }
+
+            return items;
+        },
+
+        updateItemInLocalStorage: function(updatedItem) {
+            let items = JSON.parse(localStorage.getItem("items"));
+
+            items.forEach(function(item,index) {
+                if(updatedItem.id === item.id) {
+                    items.splice(index, 1, updatedItem);
+                }
+            });
+
+            localStorage.setItem('items', JSON.stringify(items));
+        },
+
+        deleteItemFromLocalStorage: function(id) {
+            let items = JSON.parse(localStorage.getItem("items"));
+
+            items.forEach(function(item,index) {
+                if(id === item.id) {
+                    items.splice(index, 1);
+                }
+            });
+
+            localStorage.setItem('items', JSON.stringify(items));
+        },
+        clearAllItemsFromLocalStorage: function() {
+            localStorage.removeItem("items");
+        }
+
+    }
+})();
 
 
 
@@ -16,9 +81,7 @@ const ItemController = (function() {
 
     // Data State
     const state = {
-        items: [
-            
-        ],
+        items: StorageController.getItemsFromLocalStorage(),
         currentItem: null,
         totalCalories: 0
     }
@@ -268,7 +331,7 @@ const UIController = (function() {
 
 
 // APP
-const AppController = (function(ItemController, UIController) {
+const AppController = (function(ItemController, StorageController,  UIController) {
     // Load Events
     const loadEventListeners = function() {
         const UIselector = UIController.getSelectors();
@@ -318,6 +381,9 @@ const AppController = (function(ItemController, UIController) {
 
             //display in UI
             UIController.showTotalCalories(totalCalories);
+
+            // Store in local storage
+            StorageController.storeItem(newItem);
 
             // CLEAR TEXT FIELDS
             UIController.clearInput();
@@ -372,6 +438,9 @@ const AppController = (function(ItemController, UIController) {
         //display in UI
         UIController.showTotalCalories(totalCalories);
 
+        //update the local storage to current
+        StorageController.updateItemInLocalStorage(updatedItem);
+
         UIController.initialState();
 
 
@@ -394,6 +463,9 @@ const AppController = (function(ItemController, UIController) {
 
         //display in UI
         UIController.showTotalCalories(totalCalories);
+
+        //delete from storage
+        StorageController.deleteItemFromLocalStorage(currentItem.id);
     
         UIController.initialState();
     
@@ -414,6 +486,10 @@ const AppController = (function(ItemController, UIController) {
         //remove from ui
         UIController.removeItems();
 
+        //Clear from local storage
+        StorageController.clearAllItemsFromLocalStorage();
+
+        
         //hide ul
         UIController.hideList();
 
@@ -450,7 +526,7 @@ const AppController = (function(ItemController, UIController) {
             loadEventListeners();
         }
     }
-})(ItemController, UIController);
+})(ItemController, StorageController,  UIController);
 
 
 // Intialize app
