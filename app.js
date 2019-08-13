@@ -17,9 +17,7 @@ const ItemController = (function() {
     // Data State
     const state = {
         items: [
-            // {id: 0, name: 'Pizza', calories: 1000},
-            // {id: 1, name: 'Ice Cream', calories: 500},
-            // {id: 2, name: 'Steak', calories: 1500}
+            
         ],
         currentItem: null,
         totalCalories: 0
